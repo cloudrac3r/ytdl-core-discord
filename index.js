@@ -8,7 +8,11 @@ function filter(format) {
 }
 
 let result = {};
-result.downloadFromInfo = function(info, options) {
+result.downloadFromInfo = function(info, options = {}) {
+	// Prefer opus
+	const canDemux = info.formats.find(filter) && info.length_seconds != 0;
+	if (canDemux) Object.assign(options, { filter });
+	else if (info.length_seconds != 0) Object.assign(options, { filter: 'audioonly' });
 	options.highWaterMark = 10e6;
 	const ytdlStream = ytdl.downloadFromInfo(info, options);
 	if (canDemux) {
@@ -38,10 +42,6 @@ result.download = function(url, options = {}) {
 		try {
 			ytdl.getInfo(url, (err, info) => {
 				if (err) return reject(err);
-				// Prefer opus
-				const canDemux = info.formats.find(filter) && info.length_seconds != 0;
-				if (canDemux) Object.assign(options, { filter });
-				else if (info.length_seconds != 0) Object.assign(options, { filter: 'audioonly' });
 				return resolve(result.downloadFromInfo(info, options));
 			});
 		} catch (e) {
