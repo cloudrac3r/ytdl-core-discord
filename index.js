@@ -49,3 +49,4 @@ result.download = function(url, options = {}) {
 		}
 	});
 };
+module.exports = result;
