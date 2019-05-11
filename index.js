@@ -17,7 +17,7 @@ result.downloadFromInfo = function(info, options = {}) {
 	const ytdlStream = ytdl.downloadFromInfo(info, options);
 	if (canDemux) {
 		const demuxer = new prism.opus.WebmDemuxer();
-		return ytdlStream.pipe(demuxer).on('end', () => demuxer.destroy());
+		return [ytdlStream.pipe(demuxer).on('end', () => demuxer.destroy()), ytdlStream];
 	} else {
 		const transcoder = new prism.FFmpeg({
 			args: [
@@ -34,7 +34,7 @@ result.downloadFromInfo = function(info, options = {}) {
 			transcoder.destroy();
 			opus.destroy();
 		});
-		return stream;
+		return [stream, ytdlStream];
 	}
 }
 result.download = function(url, options = {}) {
